@@ -14,7 +14,7 @@ import json, os, re, sys, threading, time
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.3b Released 2014-12-23"
+VERSION = "0.3.1b Released 2014-12-23"
 
 ## WriteDiffThread - A thread which writes the diffs to the required files.
 class WriteDiffThread(threading.Thread):
@@ -188,7 +188,7 @@ else:
 				bool_version = 1
 			elif (arg == "-s"):
 				bool_stdout = 1
-			elif (re.match("-\w+", arg)):
+			elif (re.match("-\w+", arg.lower())):
 				print "\n    Invalid Syntax. Use -h for help."
 				sys.exit()
 
@@ -278,9 +278,14 @@ if (os.path.isdir(save_dir) == 0):
 	print "\n    Invalid configuration. \"" + save_dir + "\" is not a valid directory."
 	sys.exit()
 
+## Exit if the stats_refresh is smaller than 10 seconds.
+if (float(stats_refresh10) < 10):
+	print "\n    Invalid configuration. stats_refresh must be at least 10."
+	sys.exit()
+	
 ## Exit if stats_refresh is smaller than diff_refresh.
-if (float(stats_refresh) < float(diff_refresh)):
-	print "\n    Invalid configuration. diff_refresh must me equal to or smaller than stats_refresh."
+if (float(stats_refresh) <= float(diff_refresh)):
+	print "\n    Invalid configuration. diff_refresh must be smaller than stats_refresh."
 	sys.exit()	
 
 ## Build the full paths to the save files.
