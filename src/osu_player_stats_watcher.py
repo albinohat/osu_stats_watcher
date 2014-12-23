@@ -14,19 +14,8 @@ import json, os, re, sys, threading, time
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.3.1b Released 2014-12-23"
+VERSION = "0.4.1b Released 2014-12-23"
 
-## WriteDiffThread - A thread which writes the diffs to the required files.
-class WriteDiffThread(threading.Thread):
-	## __init__ - Initializes the attributes of the WriteDiffThread instance.
-	def __init__(self):
-		threading.Thread.__init__(self)
-		self.start()
-
-	## run - This method calls the writeDiff method.
-	def run(self):
-		writeDiff()
-	
 ## Global Variables - Lazy Mode
 
 ## Initialize a list to check that all the required attributes are present.
@@ -39,6 +28,7 @@ bool_version  = 0
 bool_change   = 0
 bool_exit     = 0
 bool_show     = 1
+bool_diff     = 1
 
 change_text   = ""
 username      = ""
@@ -50,6 +40,17 @@ current_acc   = ""
 previous_rank = ""
 previous_pp   =	""
 previous_acc  = ""
+
+## WriteDiffThread - A thread which writes the diffs to the required files.
+class WriteDiffThread(threading.Thread):
+	## __init__ - Initializes the attributes of the WriteDiffThread instance.
+	def __init__(self):
+		threading.Thread.__init__(self)
+		self.start()
+
+	## run - This method calls the writeDiff method.
+	def run(self):
+		writeDiff()
 
 ## writeDiff - Writes the differences in rank, PP and accuracy to text files.	
 def writeDiff():
@@ -182,13 +183,15 @@ else:
 	## bool_help set to 1 will cause the script to exit.
 	for arg in sys.argv:
 		if (arg != sys.argv[0]):
-			if (arg == "-h"):
+			if (arg == "-h" or arg == "--help"):
 				bool_help = 1
-			elif (arg == "-v"):
+			elif (arg == "-v" or arg == "--version"):
 				bool_version = 1
-			elif (arg == "-s"):
+			elif (arg == "-s" or arg == "--stdout"):
 				bool_stdout = 1
-			elif (re.match("-\w+", arg.lower())):
+			elif (arg == "--no-diff"):
+				bool_diff = 0
+			elif (re.match("--?\w+", arg.lower())):
 				print "\n    Invalid Syntax. Use -h for help."
 				sys.exit()
 
@@ -248,9 +251,10 @@ else:
 if (bool_help == 1):
 	print "\n    Usage: " + sys.argv[0] + " [options] config_file\n"
 	print "    Options"
-	print "        -h  - Prints out this help."
-	print "        -s  - Prints out stat changes to STDOUT in addition to the text files."
-	print "        -v  - Prints out the version you are using."
+	print "        -h | --help - Prints out this help."
+	print "        -s | --stdout - Prints out stat changes to STDOUT in addition to the text files."
+	print "        -v | --version - Prints out the version you are using."
+	print "        --no-diff - Changes in stats won't be updated in separate text files. Stat-only mode."
 	print "\nconfig_file - The JSON file containing the settings for the script."
 
 ## Print out the version.
@@ -279,7 +283,7 @@ if (os.path.isdir(save_dir) == 0):
 	sys.exit()
 
 ## Exit if the stats_refresh is smaller than 10 seconds.
-if (float(stats_refresh10) < 10):
+if (float(stats_refresh) < 10):
 	print "\n    Invalid configuration. stats_refresh must be at least 10."
 	sys.exit()
 	
@@ -327,8 +331,9 @@ while(1):
 		## Write the current stats to a text file.
 		writeStats()
 
-		## write the difference in stats to a text file.
-		WriteDiffThread()
+		## write the difference in stats to a text file if enabled.
+		if (bool_diff == 1):
+			WriteDiffThread()
 
 		## Update once per minute.
 		time.sleep(float(stats_refresh))
@@ -339,7 +344,7 @@ while(1):
 		previous_acc  = current_acc
 
 	except KeyboardInterrupt:
-		print "\n    CTRL+C Detected. Exiting..."
+		print "\nCTRL+C Detected. Exiting..."
 
 		## Signal to the child thread to exit.
 		bool_exit = 1
