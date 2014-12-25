@@ -10,7 +10,9 @@
 
 ## Folders
 /config
-/src/build
-/src/dist
+/src/2.7/build
+/src/2.7/dist
+/src/3.4/build
+/src/3.4/dist
 
 ## End of .gitignore

@@ -202,11 +202,11 @@ else:
 						bool_config = 1
 
 					except IOError:
-						print("\n    Error: Unable to open file: \"" + config_path + "\"")
+						print(("\n    Error: Unable to open file: \"" + config_path + "\""))
 						sys.exit()
 
 					## Parse through the configuration file.
-					for key, value in config_json.items():
+					for key, value in list(config_json.items()):
 						if (key == "api_key"):
 							api_key = value
 							config_bools[0] = 1
@@ -240,16 +240,16 @@ else:
 							config_bools[7] = 1
 
 						else:
-							print("\n    Invalid attribute \"" + key + "\" See the osu-apy wiki for more information.\n")
+							print(("\n    Invalid attribute \"" + key + "\" See the osu-apy wiki for more information.\n"))
 							sys.exit()
 
 				else:
-					print("\n    Error. Unable to open file \"" + arg + "\"")
+					print(("\n    Error. Unable to open file \"" + arg + "\""))
 					sys.exit()
 
 ## Print out the help dialog.
 if (bool_help == 1):
-	print("\n    Usage: " + sys.argv[0] + " [options] config_file\n")
+	print(("\n    Usage: " + sys.argv[0] + " [options] config_file\n"))
 	print("    Options")
 	print("        -h | --help - Prints out this help.")
 	print("        -s | --stdout - Prints out stat changes to STDOUT in addition to the text files.")
@@ -260,7 +260,7 @@ if (bool_help == 1):
 ## Print out the version.
 if (bool_version == 1):
 	## Put a line between help and version.
-	print("\n    Version " + VERSION)
+	print(("\n    Version " + VERSION))
 
 ## Exit if either help or version was specified.
 if (bool_help == 1 or bool_version == 1):
@@ -279,7 +279,7 @@ for each in config_bools:
 
 ## Exit if the save path does not exist or we cannot access it.
 if (os.path.isdir(save_dir) == 0):
-	print("\n    Invalid configuration. \"" + save_dir + "\" is not a valid directory.")
+	print(("\n    Invalid configuration. \"" + save_dir + "\" is not a valid directory."))
 	sys.exit()
 
 ## Exit if the stats_refresh is smaller than 10 seconds.
@@ -306,7 +306,7 @@ while(1):
 			
 			## Exit if the player request does not exist.
 			if (str(stats_json) == "[]"):
-				print("\n    Invalid configuration. The user \"" + username + "\" does not exist.")
+				print(("\n    Invalid configuration. The user \"" + username + "\" does not exist."))
 				sys.exit()
 
 			username     = str(stats_json[0]["username"])
@@ -315,11 +315,11 @@ while(1):
 			current_acc  = float(stats_json[0]["accuracy"])
 
 		except IOError:
-			print("\n    Unable to connect to osu!api. Will retry again in " + stats_refresh + " seconds.")
+			print(("\n    Unable to connect to osu!api. Will retry again in " + stats_refresh + " seconds."))
 		
 		except ValueError:
 			## Exit if the API key is invalid.
-			print(str(stats_json))
+			print((str(stats_json)))
 			print("\n    Invalid configuration. The API key supplied is invalid.")
 			sys.exit()
 
