@@ -16,8 +16,6 @@ sys.path.append("../../../osu-apy/2.7")
 ## Third-party Imports
 import osu_apy
 
-
-
 ## Version - Gets updated at each push.
 VERSION = "0.5.0b Released 2014-12-25 (Merry Christmas!)"
 
