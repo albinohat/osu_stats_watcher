@@ -10,16 +10,19 @@
 ## Standard Imports
 import json, os, re, sys, threading, time
 
+## Add the osu-apy path.
+sys.path.append("../../../osu-apy/2.7")
+
 ## Third-party Imports
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.4.1b Released 2014-12-23"
+VERSION = "0.5.0b Released 2014-12-25 (Merry Christmas!)"
 
 ## Global Variables - Lazy Mode
 
 ## Initialize a list to check that all the required attributes are present.
-config_bools = [0, 0, 0, 0, 0, 0, 0, 0]
+config_bools = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 bool_config   = 0
 bool_help     = 0
@@ -32,6 +35,7 @@ bool_diff     = 1
 
 change_text   = ""
 username      = ""
+gametype      = ""
 
 current_rank  = ""
 current_pp    = ""
@@ -218,26 +222,30 @@ else:
 						elif (key == "save_dir"):
 							save_dir = value + "\\"
 							config_bools[2] = 1
-
+						
+						elif (key == "gametype"):
+							gametype = value
+							config_bools[3] = 1
+						
 						elif (key == "stats_refresh"):
 							stats_refresh = value
-							config_bools[3] = 1
+							config_bools[4] = 1
 
 						elif (key == "stats_file"):
 							stats_file = value
-							config_bools[4] = 1
+							config_bools[5] = 1
 
 						elif (key == "diff_refresh"):
 							diff_refresh = value
-							config_bools[5] = 1
+							config_bools[6] = 1
 
 						elif (key == "diff_improve_file"):
 							diff_improve_file = value
-							config_bools[6] = 1
+							config_bools[7] = 1
 							
 						elif (key == "diff_degrade_file"):
 							diff_degrade_file = value
-							config_bools[7] = 1
+							config_bools[8] = 1
 
 						else:
 							print "\n    Invalid attribute \"" + key + "\" See the osu-apy wiki for more information.\n"
@@ -282,6 +290,11 @@ if (os.path.isdir(save_dir) == 0):
 	print "\n    Invalid configuration. \"" + save_dir + "\" is not a valid directory."
 	sys.exit()
 
+## Exit if the gametype value is not between 0 and 3
+if (gametype < 0 or gametype > 3):
+	print "\n    Invalid Configuration. gametype must be between 0 and 3."
+	sys.exit()
+
 ## Exit if the stats_refresh is smaller than 10 seconds.
 if (float(stats_refresh) < 10):
 	print "\n    Invalid configuration. stats_refresh must be at least 10."
@@ -302,7 +315,7 @@ while(1):
 		stats_json = ""
 		## Request player stats from the server.
 		try:
-			stats_json = json.loads(osu_apy.get_user(api_key, username, "", "string", ""))
+			stats_json = json.loads(osu_apy.get_user(api_key, username, str(gametype), "string", ""))
 			
 			## Exit if the player request does not exist.
 			if (str(stats_json) == "[]"):
