@@ -325,7 +325,7 @@ while(1):
 
 		## Only print out that the script is running if the config is valid.
 		if (bool_show == 1):
-			print("\nosu! Player Stats Watcher is running. Press CTRL+C to exit.")
+			print("\nosu! Stats Watcher is running. Press CTRL+C to exit.")
 			bool_show = 0
 
 		## Write the current stats to a text file.
