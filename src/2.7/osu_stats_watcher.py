@@ -5,7 +5,7 @@
 
 ## TODO
 ## Add +/- updates for pp and rank.
-##    Create + and - text files. Color the text accordingly in OBS.
+##    
 
 ## Standard Imports
 import json, os, re, sys, threading, time
@@ -17,7 +17,7 @@ sys.path.append("../../../osu-apy/2.7")
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.5.0b Released 2014-12-25 (Merry Christmas!)"
+VERSION = "0.5.1b Released 2014-12-26"
 
 ## Global Variables - Lazy Mode
 
@@ -322,7 +322,6 @@ while(1):
 				print "\n    Invalid configuration. The user \"" + username + "\" does not exist."
 				sys.exit()
 
-			username     = str(stats_json[0]["username"])
 			current_rank = int(stats_json[0]["pp_rank"])
 			current_pp   = float(stats_json[0]["pp_raw"])
 			current_acc  = float(stats_json[0]["accuracy"])
