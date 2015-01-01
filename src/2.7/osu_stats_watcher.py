@@ -333,7 +333,6 @@ while(1):
 			## Exit if the API key is invalid.
 			print str(stats_json)
 			print "\n    Invalid JSON returned from osu!api. Will retry again in " + str(stats_refresh) + " seconds."
-			sys.exit()
 
 		## Only print out that the script is running if the config is valid.
 		if (bool_show == 1):
