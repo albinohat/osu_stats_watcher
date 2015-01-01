@@ -17,7 +17,7 @@ sys.path.append("../../../osu-apy/2.7")
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.5.1b Released 2014-12-26"
+VERSION = "0.5.2b Released 2015-01-01"
 
 ## Global Variables - Lazy Mode
 
@@ -327,12 +327,12 @@ while(1):
 			current_acc  = float(stats_json[0]["accuracy"])
 
 		except IOError:
-			print("\n    Unable to connect to osu!api. Will retry again in " + stats_refresh + " seconds.")
+			print("\n    Unable to connect to osu!api. Will retry again in " + str(stats_refresh) + " seconds.")
 		
 		except ValueError:
 			## Exit if the API key is invalid.
 			print(str(stats_json))
-			print("\n    Invalid configuration. The API key supplied is invalid.")
+			print("\n    Invalid JSON returned from osu!api. Will retry again in " + str(stats_refresh) + " seconds.")
 			sys.exit()
 
 		## Only print out that the script is running if the config is valid.
