@@ -5,7 +5,7 @@
 
 ## TODO
 ## Add +/- updates for pp and rank.
-##    
+## 
 
 ## Standard Imports
 import json, os, re, sys, threading, time
@@ -17,7 +17,7 @@ sys.path.append("../../../osu-apy/2.7")
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.5.2b Released 2015-01-01"
+VERSION = "0.5.5b Released 2015-01-28"
 
 ## Global Variables - Lazy Mode
 
@@ -59,15 +59,25 @@ class WriteDiffThread(threading.Thread):
 ## writeDiff - Writes the differences in rank, PP and accuracy to text files.	
 def writeDiff():
 	## Reset the change bool and text.
-	change_text = "\n== Stats Change @ " + time.strftime("%Y-%m-%d %H-%M-%S", time.localtime()) + " =="	
+	change_text = "\n== Stats Change @ " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + " =="	
 	bool_change = 0
 
 	## This file's text will display as green and contain improvements.
-	green_file = open(diff_improve_path, "w+")
-
+	try:
+		green_file = open(diff_improve_path, "w+")
+		
+	except IOError:
+		print "\n    Error: Unable to write to \"" + diff_improve_path + ".\" Please ensure you have the rights to write there."
+		sys.exit()
+		
 	## This file's text will display as red and contain declines.
-	red_file   = open(diff_degrade_path, "w+")
+	try:
+		red_file   = open(diff_degrade_path, "w+")
 
+	except IOError:
+		print "\n    Error: Unable to write to \"" + diff_degrade_path + ".\" Please ensure you have the rights to write there."
+		sys.exit()
+	
 	## Write a blank line to each file.
 	green_file.write(" \n")
 	red_file.write(" \n")
@@ -170,7 +180,14 @@ def writeStats():
 	## Line 2 - PP Rank
 	## Line 3 - PP
 	## Line 4 - Accuracy (Truncated to 2 decimal places.)	
-	stats_file = open(stats_path, "w+")
+
+	try:
+		stats_file = open(stats_path, "w+")
+
+	except IOError:
+		print "\n    Error: Unable to write to \"" + stats_path + ".\" Please ensure you have the rights to write there."
+		sys.exit()
+
 	stats_file.write(str(username) + "\n")
 	stats_file.write("Rank:" + str(current_rank) + "\n")
 	stats_file.write("PP: " + str(current_pp).split(".", 1)[0] + "\n")
@@ -209,6 +226,10 @@ else:
 						print "\n    Error: Unable to open file: \"" + config_path + "\""
 						sys.exit()
 
+					except ValueError:
+						print "\n    Error: Invalid JSON. Please replace all '\\' in save_dir with \"\\\\\" or '/'"
+						sys.exit()
+
 					## Parse through the configuration file.
 					for key, value in config_json.iteritems():
 						if (key == "api_key"):
@@ -220,9 +241,12 @@ else:
 							config_bools[1] = 1
 						
 						elif (key == "save_dir"):
-							save_dir = value + "\\"
+							save_dir = re.sub("^\\$", "\\\\", value)
+							if (save_dir[-1] != "\\"):
+								save_dir += "\\"
+
 							config_bools[2] = 1
-						
+
 						elif (key == "gametype"):
 							gametype = value
 							config_bools[3] = 1
@@ -287,8 +311,19 @@ for each in config_bools:
 
 ## Exit if the save path does not exist or we cannot access it.
 if (os.path.isdir(save_dir) == 0):
-	print "\n    Invalid configuration. \"" + save_dir + "\" is not a valid directory."
-	sys.exit()
+	print "\n    Invalid configuration. \"" + save_dir + "\" is not a valid directory. Would you like to try to create it? Y/N (Default = Y)"
+	choice = raw_input().lower()
+	
+	if (choice == "y" or choice == "yes" or choice == ""):
+		try: 
+			os.makedirs(save_dir)
+			
+		except IOError:
+			print "\n    Error: Unable to write to \"" + diff_degrade_path + ".\" Please ensure you have the rights to write there."
+			sys.exit()
+
+	else:
+		sys.exit()
 
 ## Exit if the gametype value is not between 0 and 3
 if (gametype < 0 or gametype > 3):
