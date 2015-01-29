@@ -218,6 +218,16 @@ else:
 
 			else:
 				if (os.path.isfile(arg)):
+					## Normalize (possibly invalid) save_dir attribute to use /.
+					config_file = open(arg, "r+")
+					config_text = config_file.read()		
+					config_text = re.sub(r'\\\\|\\', r'/', config_text)
+					
+					## Overwrite the file with the new data.
+					config_file.seek(0)
+					config_file.write(config_text)
+					config_file.close()
+
 					try:
 						config_json = json.load(open(arg, "r"))
 						bool_config = 1
@@ -241,10 +251,7 @@ else:
 							config_bools[1] = 1
 						
 						elif (key == "save_dir"):
-							save_dir = re.sub("^\\$", "\\\\", value)
-							if (save_dir[-1] != "\\"):
-								save_dir += "\\"
-
+							save_dir = value
 							config_bools[2] = 1
 
 						elif (key == "gametype"):
