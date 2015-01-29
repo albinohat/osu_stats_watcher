@@ -17,7 +17,7 @@ sys.path.append("../../../osu-apy/2.7")
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.5.5b Released 2015-01-28"
+VERSION = "0.5.6b Released 2015-01-28"
 
 ## Global Variables - Lazy Mode
 
