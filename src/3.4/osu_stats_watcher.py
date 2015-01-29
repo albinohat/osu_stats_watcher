@@ -203,16 +203,17 @@ else:
 	## Parse through the CLA, ignoring [0] since it it is the filename.
 	## bool_help set to 1 will cause the script to exit.
 	for arg in sys.argv:
+		temp = arg.lower()
 		if (arg != sys.argv[0]):
-			if (arg == "-h" or arg == "--help"):
+			if (temp == "-h" or temp == "--help"):
 				bool_help = 1
-			elif (arg == "-v" or arg == "--version"):
+			elif (temp == "-v" or temp == "--version"):
 				bool_version = 1
-			elif (arg == "-s" or arg == "--stdout"):
+			elif (temp == "-s" or temp == "--stdout"):
 				bool_stdout = 1
-			elif (arg == "--no-diff"):
+			elif (temp == "--no-diff"):
 				bool_diff = 0
-			elif (re.match("--?\w+", arg.lower())):
+			elif (re.match("--?\w+", temp)):
 				print("\n    Invalid Syntax. Use -h for help.")
 				sys.exit()
 
