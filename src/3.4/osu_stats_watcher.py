@@ -72,7 +72,7 @@ def writeDiff():
 		
 	## This file's text will display as red and contain declines.
 	try:
-		red_file   = open(diff_degrade_path, "w+")
+		red_file = open(diff_degrade_path, "w+")
 
 	except IOError:
 		print("\n    Error: Unable to write to \"" + diff_degrade_path + ".\" Please ensure you have the rights to write there.")
@@ -171,7 +171,7 @@ def writeDiff():
 	red_file.write(" \n \n \n ")
 
 	green_file.close()
-	red_file.close()	
+	red_file.close()
 
 ## writeStats - Writes the player stats to a text file.
 def writeStats():
