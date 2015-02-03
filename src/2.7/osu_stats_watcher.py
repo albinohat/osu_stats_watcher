@@ -17,33 +17,34 @@ sys.path.append("../../../osu-apy/2.7")
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.5.6b Released 2015-01-28"
+VERSION = "0.5.7 released on 2015-02-03"
 
 ## Global Variables - Lazy Mode
 
 ## Initialize a list to check that all the required attributes are present.
 config_bools = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-bool_config   = 0
-bool_help     = 0
-bool_stdout   = 0
-bool_version  = 0
-bool_change   = 0
-bool_exit     = 0
-bool_show     = 1
-bool_diff     = 1
+bool_config     = 0
+bool_help       = 0
+bool_stdout     = 0
+bool_version    = 0
+bool_change     = 0
+bool_exit       = 0
+bool_show       = 1
+bool_diff       = 1
+bool_init_stats = 1
 
-change_text   = ""
-username      = ""
-gametype      = ""
+change_text     = ""
+username        = ""
+gametype        = ""
 
-current_rank  = ""
-current_pp    = ""
-current_acc   = ""
+current_rank    = ""
+current_pp      = ""
+current_acc     = ""
 
-previous_rank = ""
-previous_pp   =	""
-previous_acc  = ""
+previous_rank   = ""
+previous_pp     = ""
+previous_acc    = ""
 
 ## WriteDiffThread - A thread which writes the diffs to the required files.
 class WriteDiffThread(threading.Thread):
@@ -62,97 +63,118 @@ def writeDiff():
 	change_text = "\n== Stats Change @ " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + " =="	
 	bool_change = 0
 
-	## This file's text will display as green and contain improvements.
-	try:
-		green_file = open(diff_improve_path, "w+")
-		
-	except IOError:
-		print "\n    Error: Unable to write to \"" + diff_improve_path + ".\" Please ensure you have the rights to write there."
-		sys.exit()
-		
-	## This file's text will display as red and contain declines.
-	try:
-		red_file = open(diff_degrade_path, "w+")
+	if (bool_diff == 1):
+		## This file's text will display as green and contain improvements.
+		try:
+			green_file = open(diff_improve_path, 'w+')
 
-	except IOError:
-		print "\n    Error: Unable to write to \"" + diff_degrade_path + ".\" Please ensure you have the rights to write there."
-		sys.exit()
-	
-	## Write a blank line to each file.
-	green_file.write(" \n")
-	red_file.write(" \n")
+		except IOError:
+			print "\n    Error: Unable to write to \"" + diff_improve_path + ".\" Please ensure you have the rights to write there."
+			sys.exit()
+
+	if (bool_diff == 1):			
+		## This file's text will display as red and contain declines.
+		try:
+			red_file = open(diff_degrade_path, 'w+')
+
+		except IOError:
+			print "\n    Error: Unable to write to \"" + diff_degrade_path + ".\" Please ensure you have the rights to write there."
+			sys.exit()
+
+	## Write a blank line to each file.\
+	if (bool_diff == 1):
+		green_file.write(" \n")
+		red_file.write(" \n")
 
 	## Only compare if the previous values aren't empty and if a change has occurred.
 	if (previous_rank != "" and previous_pp != "" and previous_acc != ""):
 		new_rank = current_rank - previous_rank
+
 		## Improvement
 		if (new_rank < 0):
 			if (bool_stdout == 1):
 				change_text += "\n    Rank: " + str(current_rank) + " (+" + str(new_rank)[1:] + ")"
-			green_file.write("+" + str(new_rank)[1:] + "\n")
-			red_file.write(" \n")
+
+			if (bool_diff == 1):
+				green_file.write("+" + str(new_rank)[1:] + "\n")
+				red_file.write(" \n")
 			
 			bool_change = 1
+
 		## Decline
 		elif (new_rank > 0):
 			if (bool_stdout == 1):
 				change_text += "\n    Rank: " + str(current_rank) + " (-" + str(new_rank) + ")"
-			red_file.write("-" + str(new_rank) + "\n")
-			green_file.write(" \n")
+
+			if (bool_diff == 1):
+				red_file.write("-" + str(new_rank) + "\n")
+				green_file.write(" \n")
 
 			bool_change = 1
+
 		## No Change. 
 		else:
-			green_file.write(" \n")
-			red_file.write(" \n")
+			if (bool_diff == 1):
+				green_file.write(" \n")
+				red_file.write(" \n")
 
 		new_pp = current_pp - previous_pp
+
 		## Improvement
-		if (new_pp > 0):
+		if (new_pp > 0.01):
 			if (bool_stdout == 1):
 				change_text += "\n    PP: " + str(current_pp).split(".", 1)[0] + " (+" + str(new_pp)[:str(new_pp).find(".") + 3] + ")"
 
-			green_file.write("+" + str(new_pp)[:str(new_pp).find(".") + 3] + "\n")
-			red_file.write(" \n")	
+			if (bool_diff == 1):
+				green_file.write("+" + str(new_pp)[:str(new_pp).find(".") + 3] + "\n")
+				red_file.write(" \n")	
 
 			bool_change = 1
+
 		## Decline
-		elif (new_pp < 0):
+		elif (new_pp < -0.01):
 			if (bool_stdout == 1):
 				change_text += "\n    PP: " + str(current_pp).split(".", 1)[0] + " (" + str(new_pp)[:str(new_pp).find(".") + 3] + ")"
 
-			red_file.write(str(new_pp)[:str(new_pp).find(".") + 3] + "\n")
-			green_file.write(" \n")
+			if (bool_diff == 1):
+				red_file.write(str(new_pp)[:str(new_pp).find(".") + 3] + "\n")
+				green_file.write(" \n")
 			
 			bool_change = 1
+
 		## No Change. 
 		else:
-			green_file.write(" \n")
-			red_file.write(" \n")
+			if (bool_diff == 1):
+				green_file.write(" \n")
+				red_file.write(" \n")
 
 		new_acc = current_acc - previous_acc
 		## Improvement
-		if (new_acc > 0):
+		if (new_acc > 0.01):
 			if (bool_stdout == 1):
-				change_text += "\n    Accuracy: " + str(current_acc)[:str(current_acc).find(".") + 3] + "%" + " (+" + str(new_acc)[:str(new_acc).find(".") + 3] + ")"
+				change_text += "\n    Accuracy: " + str(current_acc)[:str(current_acc).find(".") + 3] + "% (+" + str(new_acc)[:str(new_acc).find(".") + 6] + ")"
 
-			green_file.write("+" + str(new_acc)[:str(new_acc).find(".") + 3])
-			red_file.write(" \n")
+			if (bool_diff == 1):
+				green_file.write("+" + str(new_acc)[:str(new_acc).find(".") + 3])
+				red_file.write(" \n")
 
-			bool_change = 1	
+			bool_change = 1
+
 		## Decline
-		elif (new_acc < 0):
+		elif (new_acc < -0.01):
 			if (bool_stdout == 1):
-				change_text += "\n    Accuracy: " + str(current_acc)[:str(current_acc).find(".") + 3] + "%" + " (" + str(new_acc)[:str(new_acc).find(".") + 3] + ")"
+				change_text += "\n    Accuracy: " + str(current_acc)[:str(current_acc).find(".") + 3] + "% (" + str(new_acc)[:str(new_acc).find(".") + 6] + ")"
 
 			red_file.write(str(new_acc)[:str(new_acc).find(".") + 3])
 			green_file.write(" \n")
 
 			bool_change = 1
+
 		## No Change. Don't write anything.
 
-	green_file.close()
-	red_file.close()
+	if (bool_diff == 1):
+		green_file.close()
+		red_file.close()
 
 	if (bool_stdout == 1 and bool_change == 1):
 		print change_text
@@ -164,14 +186,15 @@ def writeDiff():
 
 		time.sleep(0.25)
 
-	green_file = open(diff_improve_path, "w+")
-	red_file   = open(diff_degrade_path, "w+")
+	if (bool_diff == 1):
+		green_file = open(diff_improve_path, 'w+')
+		red_file   = open(diff_degrade_path, 'w+')
 
-	green_file.write(" \n \n \n ")
-	red_file.write(" \n \n \n ")
+		green_file.write(" \n \n \n ")
+		red_file.write(" \n \n \n ")
 
-	green_file.close()
-	red_file.close()
+		green_file.close()
+		red_file.close()
 
 ## writeStats - Writes the player stats to a text file.
 def writeStats():
@@ -182,7 +205,7 @@ def writeStats():
 	## Line 4 - Accuracy (Truncated to 2 decimal places.)	
 
 	try:
-		stats_file = open(stats_path, "w+")
+		stats_file = open(stats_path, 'w+')
 
 	except IOError:
 		print "\n    Error: Unable to write to \"" + stats_path + ".\" Please ensure you have the rights to write there."
@@ -223,7 +246,10 @@ else:
 					config_file = open(arg, "r+")
 					config_text = config_file.read()		
 					config_text = re.sub(r'\\\\|\\', r'/', config_text)
-					
+					config_text = re.sub(r'\{\{', r'\{', config_text)
+					config_text = re.sub(r'\{\{', r'\{', config_text)
+					config_text = re.sub(r'\}\}', r'\}', config_text)
+
 					## Overwrite the file with the new data.
 					config_file.seek(0)
 					config_file.write(config_text)
@@ -252,7 +278,7 @@ else:
 							config_bools[1] = 1
 						
 						elif (key == "save_dir"):
-							save_dir = value
+							save_dir = value + "/"
 							config_bools[2] = 1
 
 						elif (key == "gametype"):
@@ -342,7 +368,7 @@ if (gametype < 0 or gametype > 3):
 if (float(stats_refresh) < 10):
 	print "\n    Invalid configuration. stats_refresh must be at least 10."
 	sys.exit()
-	
+
 ## Exit if stats_refresh is smaller than diff_refresh.
 if (float(stats_refresh) <= float(diff_refresh)):
 	print "\n    Invalid configuration. diff_refresh must be smaller than stats_refresh."
@@ -369,6 +395,14 @@ while(1):
 			current_pp   = float(stats_json[0]["pp_raw"])
 			current_acc  = float(stats_json[0]["accuracy"])
 
+			## Note the initial stats.
+			if (bool_init_stats == 1):
+				start_rank = current_rank
+				start_pp   = current_pp
+				start_acc  = current_acc
+
+				bool_init_stats = 0
+			
 		except IOError:
 			print "\n    Unable to connect to osu!api. Will retry again in " + str(stats_refresh) + " seconds."
 		
@@ -386,8 +420,7 @@ while(1):
 		writeStats()
 
 		## write the difference in stats to a text file if enabled.
-		if (bool_diff == 1):
-			WriteDiffThread()
+		WriteDiffThread()
 
 		## Update once per minute.
 		time.sleep(float(stats_refresh))
@@ -400,6 +433,50 @@ while(1):
 	except KeyboardInterrupt:
 		print "\nCTRL+C Detected. Exiting..."
 
+		if (bool_stdout == 1):
+			session_rank = current_rank - start_rank
+			session_pp   = current_pp - start_pp
+			session_acc  = current_acc - start_acc
+	
+	
+			print "\n== Session Summary =="
+			
+			## Improve
+			if (session_rank < 0):
+				print "    Rank: " + str(current_rank) + " (+" + str(session_rank)[1:] + ")"
+
+			## Degrade
+			elif (session_rank > 0):
+				print "    Rank: " + str(current_rank) + " (-" + str(session_rank) + ")"
+
+			## No change
+			else:
+				print "    Rank: " + str(current_rank) + " (No change)"
+
+			## Improve				
+			if (session_pp > 0):
+				print "    PP: " + str(current_pp).split(".", 1)[0] + " (+" + str(session_pp)[:str(session_pp).find(".") + 3] + ")"
+
+			## Degrade
+			elif (session_pp < 0):
+				print "    PP: " + str(current_pp).split(".", 1)[0] + " (" + str(session_pp)[:str(session_pp).find(".") + 3] + ")"
+
+			## No change
+			else:
+				print "    PP: " + str(current_pp).split(".", 1)[0] + " (No change)"
+
+			## Improve
+			if (session_acc > 0):
+				print "    Accuracy: " + str(current_acc)[:str(current_acc).find(".") + 3] + "% (+" + str(session_acc)[:str(session_acc).find(".") + 6] + ")"
+
+			## Degrade
+			elif (session_acc < 0):
+				print "    Accuracy: " + str(current_acc)[:str(current_acc).find(".") + 3] + "% (" + str(session_acc)[:str(session_acc).find(".") + 6] + ")"
+
+			## No change
+			else:
+				print "    Accuracy: " + str(current_acc)[:str(current_acc).find(".") + 6] + "% (No change)"	
+				
 		## Signal to the child thread to exit.
 		bool_exit = 1
 
