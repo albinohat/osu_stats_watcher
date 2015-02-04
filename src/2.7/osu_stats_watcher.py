@@ -8,7 +8,7 @@
 ## 
 
 ## Standard Imports
-import json, os, re, sys, threading, time
+import json, os, re, subprocess, sys, threading, time
 
 ## Add the osu-apy path.
 sys.path.append("../../../osu-apy/2.7")
@@ -17,13 +17,14 @@ sys.path.append("../../../osu-apy/2.7")
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.5.7b released on 2015-02-03"
+VERSION = "0.6.0b released on 2015-02-03"
 
 ## Global Variables - Lazy Mode
 
 ## Initialize a list to check that all the required attributes are present.
 config_bools = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+## Booleans determining code flow.
 bool_config     = 0
 bool_help       = 0
 bool_stdout     = 0
@@ -33,15 +34,17 @@ bool_exit       = 0
 bool_show       = 1
 bool_diff       = 1
 bool_init_stats = 1
+bool_update     = 0
 
+## The player stats of interest.
 change_text     = ""
 username        = ""
 gametype        = ""
-
 current_rank    = ""
 current_pp      = ""
 current_acc     = ""
 
+## These variables hold the last known values of stats of interest used for comparisons.
 previous_rank   = ""
 previous_pp     = ""
 previous_acc    = ""
@@ -218,7 +221,7 @@ def writeStats():
 	stats_file.close()
 
 ## Validate # of CLA
-if (len(sys.argv) < 2 or len(sys.argv) > 4):
+if (len(sys.argv) < 2 or len(sys.argv) > 5):
 	print "\n    Invalid Syntax. Use -h for help."
 	sys.exit()
 
@@ -234,6 +237,8 @@ else:
 				bool_version = 1
 			elif (temp == "-s" or temp == "--stdout"):
 				bool_stdout = 1
+			elif (temp == "-u" or temp == "--update"):
+				bool_update = 1
 			elif (temp == "--no-diff"):
 				bool_diff = 0
 			elif (re.match("--?\w+", temp)):
@@ -319,6 +324,7 @@ if (bool_help == 1):
 	print "    Options"
 	print "        -h | --help - Prints out this help."
 	print "        -s | --stdout - Prints out stat changes to STDOUT in addition to the text files."
+	print "        -u | --update - Checks for a new version of OSW to download."
 	print "        -v | --version - Prints out the version you are using."
 	print "        --no-diff - Changes in stats won't be updated in separate text files. Stat-only mode."
 	print "\nconfig_file - The JSON file containing the settings for the script."
@@ -328,8 +334,11 @@ if (bool_version == 1):
 	## Put a line between help and version.
 	print "\n    Version " + VERSION
 
+if (bool_update == 1):
+	os.system("osu_stats_updater.exe " + "\"" + VERSION + "\"")
+	
 ## Exit if either help or version was specified.
-if (bool_help == 1 or bool_version == 1):
+if (bool_help == 1 or bool_version == 1 or bool_update == 1):
 	sys.exit()
 
 ## Exit if there was no config file specified.
