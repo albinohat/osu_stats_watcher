@@ -1,0 +1,11 @@
+{
+    "api_key": "0000000000000000000000000000000000000000",
+    "username": "albinohat",
+    "save_dir": "D:/foo/bar",
+    "gametype": 0,
+    "stats_refresh": 10,
+    "stats_file": "osu_stats.txt",
+    "diff_refresh": 10,
+    "diff_improve_file": "improve.txt",
+    "diff_degrade_file": "degrade.txt"
+}

@@ -215,7 +215,7 @@ def writeStats():
 		sys.exit()
 
 	stats_file.write(str(username) + "\n")
-	stats_file.write("Rank:" + str(current_rank) + "\n")
+	stats_file.write("Rank: " + str(current_rank) + "\n")
 	stats_file.write("PP: " + str(current_pp).split(".", 1)[0] + "\n")
 	stats_file.write("Acc: " + str(current_acc)[:str(current_acc).find(".") + 3] + "%")
 	stats_file.close()
