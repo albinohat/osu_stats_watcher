@@ -7,13 +7,14 @@
 ## 
 
 ## Standard Imports
-import re, subprocess, sys, urllib
+import re, subprocess, sys, time, urllib
 
 ## Global Vars - Lazy Mode
 bool_update = 0
 
 if (len(sys.argv) != 2):
 	print "\n    Invalid Usage. Please run this script via osu_stats_watcher -u|--update"
+	time.sleep(3)
 	sys.exit()
 
 ## Determine the version of the local osu_stats_watcher and the MRV (most recent version).
@@ -40,7 +41,8 @@ for x, y in map(None, local_list, newest_list):
 		break
 		
 if (bool_update == 0):
-	print "\nYou have the most recent version and do not need to update at this time."
+	print "\nYou have the most recent version and do not need to update at this time. Exiting in 3 seconds..."
+	time.sleep(3)	
 	sys.exit()
 	
 print "\nA new version is available. Would you like to download it? [Y/N]"
@@ -52,6 +54,8 @@ if (choice == "y" or choice == "yes" or choice == ""):
 	print "    Download Complete!"
 	
 else:
+	print "\nAborting update and exiting in 3 seconds..."
+	time.sleep(3)
 	sys.exit()
 	
 	

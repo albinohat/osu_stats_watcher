@@ -8,7 +8,7 @@
 ## 
 
 ## Standard Imports
-import json, os, re, subprocess, sys, threading, time
+import json, os, re, subprocess, sys, threading, time, urllib
 
 ## Add the osu-apy path.
 sys.path.append("../../../osu-apy/2.7")
@@ -17,7 +17,7 @@ sys.path.append("../../../osu-apy/2.7")
 import osu_apy
 
 ## Version - Gets updated at each push.
-VERSION = "0.6.0b released on 2015-02-03"
+VERSION = "0.6.1b released on 2015-02-04"
 
 ## Global Variables - Lazy Mode
 
@@ -335,6 +335,21 @@ if (bool_version == 1):
 	print "\n    Version " + VERSION
 
 if (bool_update == 1):
+	if (os.path.isfile("osu_stats_updater.exe") == 0):
+		print "osu! Stats Downloader not found. Download now? [Y/N]"
+		choice = raw_input().lower()
+
+		if (choice == "y" or choice == "yes" or choice == ""):
+			print "    Downloading..."
+			new_package = urllib.urlretrieve("https://github.com/albinohat/osu_stats_watcher/blob/master/bin/osu_stats_updater.exe?raw=true", "osu_stats_updater.exe")
+			print "    Download Complete!"
+			
+		else:
+			print "\nAborting Update and exiting..."
+			sys.exit()
+		
+	print "\nLaunching updater..."
+	
 	os.system("osu_stats_updater.exe " + "\"" + VERSION + "\"")
 	
 ## Exit if either help or version was specified.
