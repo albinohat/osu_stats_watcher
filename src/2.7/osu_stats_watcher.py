@@ -224,14 +224,15 @@ def getStats(api_key, username, gametype):
 			
 ## parseConfig - Validates the command line arguments and parses through them.
 ##
-## VERSION      - A string containing the current version.
-## bool_config  - A bool controlling whether a config file was present.
-## bool_diff    - A bool controlling whether to place stat diffs in text files.
-## bool_help    - A bool controlling whether or not to display the help.
-## bool_stdout  - A bool controlling whether or not to display stat changes in the console.
-## bool_update  - A bool controlling whether or not to run osu! Stats Updater.
-## bool_version - A bool controlling whether or not to display the version.
-def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_update, bool_version):
+## VERSION       - A string containing the current version.
+## bool_config   - A bool controlling whether a config file was present.
+## bool_diff     - A bool controlling whether to place stat diffs in text files.
+## bool_help     - A bool controlling whether or not to display the help.
+## bool_stdout   - A bool controlling whether or not to display stat changes in the console.
+## bool_update   - A bool controlling whether or not to run osu! Stats Updater.
+## bool_version  - A bool controlling whether or not to display the version.
+## bool_testdiff - A bool controlling whether or not to write dummy data to diff files for OBS testing.
+def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_update, bool_version, bool_testdiff):
 	try:
 		## Initialize a list to check that all the required attributes are present.
 		config_bools = [0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -255,6 +256,8 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 						bool_stdout = 0
 					elif (temp == "--no-diff"):
 						bool_diff = 0
+					elif (temp == "--test-diff"):
+						bool_testdiff = 1
 					elif (temp == "-u" or temp == "--update"):
 						bool_update = 1						
 					elif (re.match("--?\w+", temp)):
@@ -343,6 +346,7 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 			print "        -v | --version - Prints out the version you are using."
 			print "        --no-stdout - Changes in stats won't be sent to STDOUT."
 			print "        --no-diff - Changes in stats won't be updated in separate text files."
+			print "        --test-diff - Writes dummy data to the diff files for OBS testing and exits."
 			print "\nconfig_file - The JSON file containing the settings for the script."
 
 		## Print out the version.
@@ -366,7 +370,6 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 				
 			print "\n    Launching updater..."
 			ud_pid = subprocess.Popen(["osu_stats_updater.exe", "\"" + VERSION + "\""], shell=True).pid
-			#os.system("osu_stats_updater.exe \"" + VERSION + "\"")
 			
 		## Exit if either help or version was specified.
 		if (bool_help == 1 or bool_version == 1 or bool_update == 1):
@@ -418,6 +421,10 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 		stats_path        = save_dir + stats_file
 		diff_improve_path = save_dir + diff_improve_file
 		diff_degrade_path = save_dir + diff_degrade_file
+
+		## Write dummy data to the diff files for OBS testing.
+		if (bool_testdiff == 1):
+			testDiff(diff_improve_path, diff_degrade_path)
 		
 		## Return all of the configuration entries to be used.
 		#print "Parsed CLAs & Config"
@@ -428,6 +435,39 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 	except KeyboardInterrupt:
 		sys.exit()
 
+## testDiff - Writes to the diff files to allow for testing in OBS.
+## diff_improve_path - The path to the improvement diff file.
+## diff_degrade_path - The path to the degrade diff file.
+def testDiff(diff_improve_path, diff_degrade_path):
+	print "\n    Diff Test Enabled. Press CTRL+C to exit."
+
+	try:
+		green_file = open(diff_improve_path, 'w+')
+		green_file.write(" \n+TEST\n \n+TEST")
+		green_file.close()
+
+		red_file = open(diff_degrade_path, 'w+')
+		red_file.write(" \n \n-TEST\n ")
+		red_file.close()
+		
+		while (1):
+			time.sleep(1)
+
+	## When CTRL+C is hit, blank the files again and exit.
+	except KeyboardInterrupt:
+		print "\nCTRL+C Detected. Exiting..."
+
+		green_file = open(diff_improve_path, 'w+')
+		red_file   = open(diff_degrade_path, 'w+')
+
+		green_file.write(" \n \n \n ")
+		red_file.write(" \n \n \n ")
+
+		green_file.close()
+		red_file.close()
+
+		sys.exit()
+		
 ## writeStats - Writes the player stats to a text file.
 ## name - The osu! username to look up stats for.
 ## rank - The user's current world rank.
@@ -475,6 +515,7 @@ def main():
 	bool_stdout     = 1
 	bool_update     = 0
 	bool_version    = 0
+	bool_testdiff   = 0
 
 	## The player stats of interest.
 	username        = ""
@@ -489,7 +530,7 @@ def main():
 	threads = []
 	
 	## Parse through the CLA and store all of the configuration values.
-	bool_stdout, bool_diff, api_key, username, gametype, stats_refresh, diff_refresh, stats_path, diff_improve_path, diff_degrade_path = parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_update, bool_version)
+	bool_stdout, bool_diff, api_key, username, gametype, stats_refresh, diff_refresh, stats_path, diff_improve_path, diff_degrade_path = parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_update, bool_version, bool_testdiff)
 
 	## Only print out that the script is running if the config is valid.
 	print "\nosu! Stats Watcher is running. Press CTRL+C to exit."
