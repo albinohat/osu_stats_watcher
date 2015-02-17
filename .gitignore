@@ -15,5 +15,6 @@ update_mrv.py
 /src/2.7/dist
 /src/3.4/build
 /src/3.4/dist
+/test
 
 ## End of .gitignore

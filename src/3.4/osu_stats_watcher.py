@@ -352,13 +352,14 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 
 		if (bool_update == 1):
 			if (os.path.isfile("osu_stats_updater.exe") == 0):
-				print("osu! Stats Downloader not found. Download now? [Y/N]")
+				print("osu! Stats Updater not found. Download now? [Y/N]")
 				choice = input().lower()
 
 				if (choice == "y" or choice == "yes" or choice == ""):
 					print("    Downloading...")
 					new_package = urllib.request.urlretrieve("https://github.com/albinohat/osu_stats_watcher/blob/master/bin/osu_stats_updater.exe?raw=true", "osu_stats_updater.exe")
 					print("    Download Complete!")
+					sys.exit()
 					
 				else:
 					print("\nAborting Update and exiting...")
