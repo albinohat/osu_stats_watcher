@@ -359,16 +359,14 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 					print "    Downloading..."
 					new_package = urllib.urlretrieve("https://github.com/albinohat/osu_stats_watcher/blob/master/bin/osu_stats_updater.exe?raw=true", "osu_stats_updater.exe")
 					print "    Download Complete!"
-					sys.exit()
 					
 				else:
-					print "\nAborting Update and exiting..."
+					print "\n    Aborting Update and exiting..."
 					sys.exit()
 				
-			print "\nLaunching updater..."
-			
-			os.system("osu_stats_updater.exe " + "\"" + VERSION + "\"")
-			
+			print "\n    Launching updater..."
+			ud_pid = subprocess.Popen(["osu_stats_updater.exe", "\"" + VERSION + "\""], shell=True).pid
+
 		## Exit if either help or version was specified.
 		if (bool_help == 1 or bool_version == 1 or bool_update == 1):
 			sys.exit()

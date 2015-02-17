@@ -7,10 +7,14 @@
 ## 
 
 ## Standard Imports
-import re, subprocess, sys, time, urllib.request, urllib.parse, urllib.error
+import re, sys, time, urllib.request, urllib.parse, urllib.error
 
 ## update - This method updates the osu! Stats Watcher which called it.
 def update():
+	## Initialize the vars to hold the versions.
+	local_version  = ""
+	newest_version = ""
+
 	## This bool tracks whether or not to update.
 	bool_update = 0
 
@@ -25,6 +29,7 @@ def update():
 	
 	except AttributeError:
 		print("\n    Invalid local version. Exiting...")
+		print(local_version)
 		sys.exit()
 
 	try:
@@ -51,7 +56,7 @@ def update():
 			break
 		
 		## Our version number is higher.
-		## This shouldn't happen in prod.
+		## This shouldn't happen in production.
 		if (x > y):
 			break
 			
