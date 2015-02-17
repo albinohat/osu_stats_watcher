@@ -464,7 +464,7 @@ def writeStats(name, rank, pp, acc, path):
 ## main - The main loop of the code.
 def main():
 	## Version - Gets updated at each git push.
-	VERSION = "0.7.2b released on 2015-02-16"
+	VERSION = "0.7.5b released on 2015-02-16"
 
 	## Booleans determining code flow.
 	bool_config     = 0
