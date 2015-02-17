@@ -365,8 +365,8 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 					sys.exit()
 				
 			print "\n    Launching updater..."
-			#ud_pid = subprocess.Popen(["python", "osu_stats_updater.py", "\"" + VERSION + "\""], shell=True).pid
-			os.system("osu_stats_updater.exe \"" + VERSION + "\"")
+			ud_pid = subprocess.Popen(["osu_stats_updater.exe", "\"" + VERSION + "\""], shell=True).pid
+			#os.system("osu_stats_updater.exe \"" + VERSION + "\"")
 			
 		## Exit if either help or version was specified.
 		if (bool_help == 1 or bool_version == 1 or bool_update == 1):
@@ -464,7 +464,7 @@ def writeStats(name, rank, pp, acc, path):
 ## main - The main loop of the code.
 def main():
 	## Version - Gets updated at each git push.
-	VERSION = "0.7.1b released on 2015-02-16"
+	VERSION = "0.7.2b released on 2015-02-16"
 
 	## Booleans determining code flow.
 	bool_config     = 0

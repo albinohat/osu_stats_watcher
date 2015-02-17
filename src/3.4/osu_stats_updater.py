@@ -23,6 +23,10 @@ def update():
 		time.sleep(3)
 		sys.exit()
 
+	## Sanitize version of quotes.
+	if sys.argv[1].startswith('"') and sys.argv[1].endswith('"'):
+		sys.argv[1] = sys.argv[1][1:-1]
+	
 	## Determine the version of the local osu_stats_watcher and the MRV (most recent version).
 	try:
 		local_version = re.match(r'(\d+\.\d+\.\d+)', sys.argv[1]).group(0)
@@ -33,7 +37,7 @@ def update():
 		sys.exit()
 
 	try:
-		newest_version = re.match(r'(\d+\.\d+\.\d+)', str(urllib.request.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update.mrv?raw=true").read())[1:-1]).group(0)
+		newest_version = re.match(r'(\d+\.\d+\.\d+)', str(urllib.request.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update.mrv?raw=true").read())).group(0)
 
 	except AttributeError:
 		print("\n    Invalid newest version. Exiting...")
