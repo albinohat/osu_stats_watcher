@@ -365,8 +365,9 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 					sys.exit()
 				
 			print("\n    Launching updater...")
-			ud_pid = subprocess.Popen(["osu_stats_updater.exe", "\"" + VERSION + "\""], shell=True).pid
-
+			#ud_pid = subprocess.Popen(["python", "osu_stats_updater.py", "\"" + VERSION + "\""], shell=True).pid
+			os.system("osu_stats_updater.exe \"" + VERSION + "\"")
+			
 		## Exit if either help or version was specified.
 		if (bool_help == 1 or bool_version == 1 or bool_update == 1):
 			sys.exit()

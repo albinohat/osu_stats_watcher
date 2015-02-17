@@ -25,19 +25,20 @@ def update():
 
 	## Determine the version of the local osu_stats_watcher and the MRV (most recent version).
 	try:
-		local_version = re.match(r'\d+\.\d+\.\d+', sys.argv[1]).group(0)
-	
+		local_version = re.match(r'(\d+\.\d+\.\d+)', sys.argv[1]).group(0)
+		
 	except AttributeError:
 		print "\n    Invalid local version. Exiting..."
 		print local_version
 		sys.exit()
 
 	try:
-		newest_version = re.match(r'\d+\.\d+\.\d+', urllib.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update.mrv").read()).group(0)
+		newest_version = re.match(r'(\d+\.\d+\.\d+)', str(urllib.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update.mrv?raw=true").read())[1:-1]).group(0)
 
 	except AttributeError:
 		print "\n    Invalid newest version. Exiting..."
-		sys.exit()	
+		print newest_version
+		sys.exit()
 	
 	print "\n\nWelcome to the osu! Stats Updater!"
 
