@@ -4,8 +4,26 @@
 ## This script creates a text file containing some quick user statistics to display on a Twitch stream.
 
 ## TODO
-## Add +/- updates for pp and rank.
-## 
+## == GUI Preparations ==
+##
+## Update verification of config file to more strictly limit accepted values.
+##
+## Git Gud @ TK/Tcl (Uuuugh)
+##
+## Add method(s) for modifying
+##    Variable (GUI Control Type)
+##    bool_stdout (Checkbox)
+##    bool_diff (Checkbox)
+##    bool_testdiff (Checkbox)
+##    api_key (Edit Field)
+##    gametype (Dropdown)
+##    username (Edit Field)
+##    stats_refresh (Edit Field)
+##    diff_refresh (Edit Field)
+##    stats_path (Browse)
+##    diff_improve_path (Browse)
+##    diff_degrade_path (Browse)
+##
 
 ## Standard Imports
 import json, os, re, subprocess, sys, threading, time, urllib
@@ -194,7 +212,7 @@ class WriteDiffThread(threading.Thread):
 ## api_key  - An osu!api key. One can be obtained from https://osu.ppy.sh/p/api
 ## gametype - The gametype to look up stats for. See osu!api or osu!apy documentation.
 ## username - The osu! username to look up stats for.
-def getStats(api_key, username, gametype):
+def getStats(api_key, username, gametype, stats_refresh):
 	## Request player stats from the osu!api.
 	try:
 		stats_json = json.loads(osu_apy.get_user(api_key, username, str(gametype), "string", ""))
@@ -504,7 +522,7 @@ def writeStats(name, rank, pp, acc, path):
 ## main - The main loop of the code.
 def main():
 	## Version - Gets updated at each git push.
-	VERSION = "0.7.6b released on 2015-02-16"
+	VERSION = "0.7.7b released on 2015-02-20"
 
 	## Booleans determining code flow.
 	bool_config     = 0
@@ -536,13 +554,13 @@ def main():
 	print "\nosu! Stats Watcher is running. Press CTRL+C to exit."
 
 	## Get the initial stats.
-	start_rank, start_pp, start_acc = getStats(api_key, username, gametype)
-	current_rank, current_pp, current_acc = getStats(api_key, username, gametype)
+	start_rank, start_pp, start_acc = getStats(api_key, username, gametype, stats_refresh)
+	current_rank, current_pp, current_acc = getStats(api_key, username, gametype, stats_refresh)
 
 	while(1):
 		try:
 			## Request the player's stats.
-			current_rank, current_pp, current_acc = getStats(api_key, username, gametype)
+			current_rank, current_pp, current_acc = getStats(api_key, username, gametype, stats_refresh)
 			
 			## Write the current stats to a text file.
 			writeStats(username, current_rank, current_pp, current_acc, stats_path)
