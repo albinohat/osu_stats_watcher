@@ -11,6 +11,9 @@ import re, sys, time, urllib.request, urllib.parse, urllib.error
 
 ## update - This method updates the osu! Stats Watcher which called it.
 def update():
+	## Initialize the bool controlling whether or not to run a debug update.
+	bool_debug = 0
+
 	## Initialize the vars to hold the versions.
 	local_version  = ""
 	newest_version = ""
@@ -18,7 +21,7 @@ def update():
 	## This bool tracks whether or not to update.
 	bool_update = 0
 
-	if (len(sys.argv) != 2):
+	if (len(sys.argv) < 2 or len(sys.argv) > 3):
 		print("\n    Invalid Usage. Please run this script via osu_stats_watcher -u|--update")
 		time.sleep(3)
 		sys.exit()
@@ -27,21 +30,31 @@ def update():
 	if sys.argv[1].startswith('"') and sys.argv[1].endswith('"'):
 		sys.argv[1] = sys.argv[1][1:-1]
 	
+	## Check for the debug option.
+	if (len(sys.argv) == 3 and sys.argv[2] == "--update-debug"):
+		print("\n    Entering debug mode!")
+		bool_debug = 1
+	
 	## Determine the version of the local osu_stats_watcher and the MRV (most recent version).
 	try:
-		local_version = re.match(r'(\d+\.\d+\.\d+)', sys.argv[1]).group(0)
-		
+		local_version = re.search(r'(\d+\.\d+\.\d+)', sys.argv[1]).group(0)
+
 	except AttributeError:
-		print("\n    Invalid local version. Exiting...")
+		print("\n    Invalid local version. Exiting in 3 seconds...")
 		print(local_version)
+		time.sleep(3)		
 		sys.exit()
 
 	try:
-		newest_version = re.match(r'(\d+\.\d+\.\d+)', str(urllib.request.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update.mrv?raw=true").read())).group(0)
+		if (bool_debug == 0):
+			newest_version = re.search(r'(\d+\.\d+\.\d+)', str(urllib.request.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update.mrv?raw=true").read())).group(0)
+		else:
+			newest_version = re.search(r'(\d+\.\d+\.\d+)', str(urllib.request.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update_test.mrv?raw=true").read())).group(0)			
 
 	except AttributeError:
-		print("\n    Invalid newest version. Exiting...")
+		print("\n    Invalid newest version. Exiting in 3 seconds...")
 		print(newest_version)
+		time.sleep(3)		
 		sys.exit()
 	
 	print("\n\nWelcome to the osu! Stats Updater!")

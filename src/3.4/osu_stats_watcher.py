@@ -60,10 +60,6 @@ class WriteDiffThread(threading.Thread):
 		try:
 			if (self.current_rank == 0 or self.current_pp == 0.0 or self.current_acc == 0.0):
 				return
-			
-			#print "  In WriteDiffThread.writeDiff()"
-			#print "   Variable values"
-			#print "    " + str([self.bool_diff, self.bool_stdout, self.bool_exit, self.diff_refresh, self.diff_improve_path, self.diff_degrade_path, self.current_rank, self.current_pp, self.current_acc, self.previous_rank, self.previous_pp, self.previous_acc])
 
 			## Reset the change bool and text.
 			self.change_text = "\n== Stats Change @ " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + " =="	
@@ -242,15 +238,16 @@ def getStats(api_key, username, gametype, stats_refresh):
 			
 ## parseConfig - Validates the command line arguments and parses through them.
 ##
-## VERSION       - A string containing the current version.
-## bool_config   - A bool controlling whether a config file was present.
-## bool_diff     - A bool controlling whether to place stat diffs in text files.
-## bool_help     - A bool controlling whether or not to display the help.
-## bool_stdout   - A bool controlling whether or not to display stat changes in the console.
-## bool_update   - A bool controlling whether or not to run osu! Stats Updater.
-## bool_version  - A bool controlling whether or not to display the version.
-## bool_testdiff - A bool controlling whether or not to write dummy data to diff files for OBS testing.
-def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_update, bool_version, bool_testdiff):
+## VERSION           - A string containing the current version.
+## bool_config       - A bool controlling whether a config file was present.
+## bool_diff         - A bool controlling whether to place stat diffs in text files.
+## bool_help         - A bool controlling whether or not to display the help.
+## bool_stdout       - A bool controlling whether or not to display stat changes in the console.
+## bool_update       - A bool controlling whether or not to run osu! Stats Updater.
+## bool_version      - A bool controlling whether or not to display the version.
+## bool_testdiff     - A bool controlling whether or not to write dummy data to diff files for OBS testing.
+## bool_update_debug - A bool controlling whether or not to run osu! Stats Updater with debug.
+def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_update, bool_version, bool_testdiff, bool_update_debug):
 	try:
 		## Initialize a list to check that all the required attributes are present.
 		config_bools = [0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -277,7 +274,9 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 					elif (temp == "--test-diff"):
 						bool_testdiff = 1
 					elif (temp == "-u" or temp == "--update"):
-						bool_update = 1						
+						bool_update = 1
+					elif (temp == "--update-debug"):
+						bool_update_debug = 1
 					elif (re.match("--?\w+", temp)):
 						print("\n    Invalid Syntax. Use -h for help.")
 						sys.exit()
@@ -372,7 +371,7 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 			## Put a line between help and version.
 			print("\n    Version " + VERSION)
 
-		if (bool_update == 1):
+		if (bool_update == 1 or bool_update_debug):
 			if (os.path.isfile("osu_stats_updater.exe") == 0):
 				print("osu! Stats Updater not found. Download now? [Y/N]")
 				choice = input().lower()
@@ -386,11 +385,15 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 					print("\n    Aborting Update and exiting...")
 					sys.exit()
 				
-			print("\n    Launching updater...")
-			ud_pid = subprocess.Popen(["osu_stats_updater.exe", "\"" + VERSION + "\""], shell=True).pid
-			
+			if (bool_update_debug == 0):
+				print("\n    Launching updater...")
+				ud_pid = subprocess.Popen(["osu_stats_updater.exe", "\"" + VERSION + "\""], shell=True).pid
+			else:
+				print("\n    Launder updater (debug)...")
+				ud_pid = subprocess.Popen(["osu_stats_updater.exe", "\"" + VERSION + "\"", "--update-debug"], shell=True).pid
+				
 		## Exit if either help or version was specified.
-		if (bool_help == 1 or bool_version == 1 or bool_update == 1):
+		if (bool_help == 1 or bool_version == 1 or bool_update == 1 or bool_update_debug):
 			sys.exit()
 
 		## Exit if there was no config file specified.
@@ -426,7 +429,7 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 			sys.exit()
 
 		## Exit if the stats_refresh is smaller than 10 seconds.
-		if (float(stats_refresh) < 10):
+		if (float(stats_refresh) < 10 or float(stats_refresh) > 60):
 			print("\n    Invalid configuration. stats_refresh must be at least 10.")
 			sys.exit()
 
@@ -444,10 +447,7 @@ def parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_up
 		if (bool_testdiff == 1):
 			testDiff(diff_improve_path, diff_degrade_path)
 		
-		## Return all of the configuration entries to be used.
-		#print "Parsed CLAs & Config"
-		#print str([bool_stdout, bool_diff, api_key, username, gametype, stats_refresh, diff_refresh, stats_path, diff_improve_path, diff_degrade_path])
-		
+		## Return all of the configuration entries to be used.		
 		return bool_stdout, bool_diff, api_key, username, gametype, stats_refresh, diff_refresh, str(stats_path), str(diff_improve_path), str(diff_degrade_path)
 
 	except KeyboardInterrupt:
@@ -522,18 +522,19 @@ def writeStats(name, rank, pp, acc, path):
 ## main - The main loop of the code.
 def main():
 	## Version - Gets updated at each git push.
-	VERSION = "0.7.7b released on 2015-02-20"
+	VERSION = "Version 0.7.7b released on 2015-02-20"
 
 	## Booleans determining code flow.
-	bool_config     = 0
-	bool_diff       = 1
-	bool_exit       = 0
-	bool_help       = 0
-	bool_init_stats = 1
-	bool_stdout     = 1
-	bool_update     = 0
-	bool_version    = 0
-	bool_testdiff   = 0
+	bool_config       = 0
+	bool_diff         = 1
+	bool_exit         = 0
+	bool_help         = 0
+	bool_init_stats   = 1
+	bool_stdout       = 1
+	bool_update       = 0
+	bool_version      = 0
+	bool_testdiff     = 0
+	bool_update_debug = 0
 
 	## The player stats of interest.
 	username        = ""
@@ -548,7 +549,7 @@ def main():
 	threads = []
 	
 	## Parse through the CLA and store all of the configuration values.
-	bool_stdout, bool_diff, api_key, username, gametype, stats_refresh, diff_refresh, stats_path, diff_improve_path, diff_degrade_path = parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_update, bool_version, bool_testdiff)
+	bool_stdout, bool_diff, api_key, username, gametype, stats_refresh, diff_refresh, stats_path, diff_improve_path, diff_degrade_path = parseConfig(VERSION, bool_config, bool_diff, bool_help, bool_stdout, bool_update, bool_version, bool_testdiff, bool_update_debug)
 
 	## Only print out that the script is running if the config is valid.
 	print("\nosu! Stats Watcher is running. Press CTRL+C to exit.")
