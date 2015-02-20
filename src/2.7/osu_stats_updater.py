@@ -11,6 +11,12 @@ import re, sys, time, urllib
 
 ## update - This method updates the osu! Stats Watcher which called it.
 def update():
+	## Initialize the bool controlling whether or not to run a debug update.
+	bool_debug = 0
+	if (len(sys.argv == 2 and sys.arg[1] == "--debug"):
+		bool_debug = 1
+
+
 	## Initialize the vars to hold the versions.
 	local_version  = ""
 	newest_version = ""
@@ -37,8 +43,10 @@ def update():
 		sys.exit()
 
 	try:
-		newest_version = re.match(r'(\d+\.\d+\.\d+)', str(urllib.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update.mrv?raw=true").read())).group(0)
-
+		if (bool_debug == 0):
+			newest_version = re.match(r'(\d+\.\d+\.\d+)', str(urllib.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update.mrv?raw=true").read())).group(0)
+		else:
+			newest_version = re.match(r'(\d+\.\d+\.\d+)', str(urllib.urlopen("https://raw.githubusercontent.com/albinohat/osu_stats_watcher/master/update_test.mrv?raw=true").read())).group(0)			
 	except AttributeError:
 		print "\n    Invalid newest version. Exiting..."
 		print newest_version
